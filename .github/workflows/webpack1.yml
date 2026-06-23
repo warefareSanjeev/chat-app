@@ -27,16 +27,16 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      # Download the compiled files from the build matrix (Example uses Node 22 output)
-      - name: Download Compiled Assets
-        uses: actions/download-artifact@v4
-        with:
-          name: production-assets-22.x
-          path: dist/
-
-      - name: Deploy
-        run: echo "Deploying assets to production server..."
+    - uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Deploy
+      run: echo "Deploying assets to production server..."

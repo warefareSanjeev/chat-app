@@ -8,8 +8,12 @@ jobs:
     strategy:
       matrix:
         node-version: [18.x, 20.x, 22.x]
-
+    outputs:
+      script-file: ${{ steps.publish.outputs.script-file }}
     steps:
+    - name: Publish JS filename
+      id: publish
+      run: find dist/assets/*.js -type f -execdir echo 'script-file={}' >> $GITHUB_OUTPUT ';'
     - uses: actions/checkout@v4
 
     - uses: actions/setup-node@v4
@@ -22,9 +26,10 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: dist-files
-        path: |
-          dist 
-          package.json
+        path: dist
+        #path: |
+         # dist 
+         # package.json
 
   deploy:
     needs: build
@@ -35,10 +40,19 @@ jobs:
         node-version: [18.x, 20.x, 22.x]
 
     steps:
+    - name: Get build artifacts
+      uses: actions/download-artifacts@v4
+      with:
+        name: dist-files
+    - name: Output content
+      run: ls
+      
     - uses: actions/checkout@v4
 
     - uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
+    - name: Output filename
+      run: echo "${{ needs.build.outputs.script-file }}"
     - name: Deploy
       run: echo "Deploying assets to production server..."

@@ -11,6 +11,11 @@ jobs:
     outputs:
       script-file: ${{ steps.publish.outputs.script-file }}
     steps:
+    - name: Cache Dependencies #In this we are caching the dependencies so that we can use it later to save time
+      uses: action/cache@v4
+      with:
+        path: ~/.npm
+        key: deps-node-modules-${{ hashFiles('**/package-lock.json') }} #package-lock.json is the file where all the depenencies are stored
     - name: Publish JS filename
       id: publish
       run: find dist/assets/*.js -type f -execdir echo 'script-file={}' >> $GITHUB_OUTPUT ';'
@@ -40,6 +45,11 @@ jobs:
         node-version: [18.x, 20.x, 22.x]
 
     steps:
+    - name: Cache Dependencies #In this we are caching the dependencies so that we can use it later to save time
+      uses: action/cache@v4
+      with:
+        path: ~/.npm
+        key: deps-node-modules-${{ hashFiles('**/package-lock.json') }} #package-lock.json is the file where all the depenencies are stored
     - name: Get build artifacts
       uses: actions/download-artifacts@v4
       with:
